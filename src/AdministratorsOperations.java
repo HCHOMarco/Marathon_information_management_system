@@ -190,6 +190,18 @@ public class AdministratorsOperations {
             System.out.println("The user does not exist, please re-enter : ");
             account = kb.next();
         }
+        SortContestantMark sortContestantMark = new SortContestantMark();
+        List<Map.Entry<String,Contestant>> tmpRank = sortContestantMark.sortContestantMark(contestantMap);
+        int rankNum=1;
+        for(Map.Entry<String, Contestant> o :tmpRank){
+            // 有成绩而且账号没有被封禁可以参加排名
+            if(o.getValue().getMark()!=0 && o.getValue().getIsLegal()==1){
+                if(o.getValue().getAccount().equals(account)){
+                    o.getValue().setRanking(rankNum);
+                }
+                rankNum++;
+            }
+        }
         System.out.println("The mark of "+contestantMap.get(account).getName()+" is "+contestantMap.get(account).getMark());
         System.out.println("The ranking of "+contestantMap.get(account).getName()+" is "+contestantMap.get(account).getRanking());
     }
@@ -205,7 +217,8 @@ public class AdministratorsOperations {
         for(Map.Entry<String, Contestant> o :tmpRank){
             // 有成绩而且账号没有被封禁可以参加排名
             if(o.getValue().getMark()!=0 && o.getValue().getIsLegal()==1){
-                System.out.println("No."+rankNum+" : "+o.getValue().getName());
+                contestantMap.get(o.getKey()).setRanking(rankNum);
+                System.out.println("No."+rankNum+" : "+o.getValue().getName()+" "+o.getValue().getMark());
                 rankNum++;
             }
         }
@@ -241,6 +254,17 @@ public class AdministratorsOperations {
      * @throws FileNotFoundException 没有找到相应文件
      */
     public void exitNow(Map<String,Contestant> contestantTreeMap, Map<String,Administrators> administratorsTreeMap, ArrayList<String> noticeList) throws FileNotFoundException {
+        // 在退出前进行成绩排序
+        SortContestantMark sortContestantMark = new SortContestantMark();
+        List<Map.Entry<String,Contestant>> tmpRank = sortContestantMark.sortContestantMark(contestantTreeMap);
+        int rankNum=1;
+        for(Map.Entry<String, Contestant> o :tmpRank){
+            // 有成绩而且账号没有被封禁可以参加排名
+            if(o.getValue().getMark()!=0 && o.getValue().getIsLegal()==1){
+                contestantTreeMap.get(o.getKey()).setRanking(rankNum);
+                rankNum++;
+            }
+        }
         GetOrPutInformation getOrPutInformation = new GetOrPutInformation();
         getOrPutInformation.putInformation(contestantTreeMap,administratorsTreeMap,noticeList);
         System.exit(0);

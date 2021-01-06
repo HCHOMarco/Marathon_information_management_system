@@ -46,7 +46,6 @@ public class ContestantOperations {
             System.out.println("Your score has not been entered yet");
         }else{
             System.out.println("Your mark : "+contestantTreeMap.get(account).getMark());
-            System.out.println("Your ranking : "+contestantTreeMap.get(account).getRanking());
         }
     }
 
@@ -116,6 +115,17 @@ public class ContestantOperations {
      * @throws FileNotFoundException 是否找到文件
      */
     public void exitNow(Map<String,Contestant> contestantTreeMap, Map<String,Administrators> administratorsTreeMap, ArrayList<String> noticeList) throws FileNotFoundException {
+        // 在退出前进行成绩排序
+        SortContestantMark sortContestantMark = new SortContestantMark();
+        List<Map.Entry<String,Contestant>> tmpRank = sortContestantMark.sortContestantMark(contestantTreeMap);
+        int rankNum=1;
+        for(Map.Entry<String, Contestant> o :tmpRank){
+            // 有成绩而且账号没有被封禁可以参加排名
+            if(o.getValue().getMark()!=0 && o.getValue().getIsLegal()==1){
+                contestantTreeMap.get(o.getKey()).setRanking(rankNum);
+                rankNum++;
+            }
+        }
         GetOrPutInformation getOrPutInformation = new GetOrPutInformation();
         getOrPutInformation.putInformation(contestantTreeMap,administratorsTreeMap,noticeList);
         System.exit(0);
